@@ -11,6 +11,7 @@ I used Fusion360 to create the camera mount. In this tutorial, we learned how to
 <img src="images/camera_mount.PNG" height="200">
 
 ## b. Tutorial 2 Introduction to GPS:
+In this tutorial, I learned how to extract location data from a GPS module. We used the raw data to create a more user-friendly data by obtaining a google maps link.
 
 ## c. Tutorial 3 Color Segmentation:
 
