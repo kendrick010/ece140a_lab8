@@ -20,5 +20,6 @@ In this tutorial, we learned how to implement color tracking on the pi using col
 In this  tuturial, we experimented with the stepper motor using the RpiMotor library. From this tutorial, we were able vary the steps, direction, and delay of the motor.
 
 ## e. Tutorial 4 PID Controller:
+In this tutorial, we learned about PID Control in the application of stepper motor tracking. The purpose of PID Control is to eliminate overshoot and steady-state error to obtain the desired output of tracking objects to the center smoothly.
 
-## d. Challege 1 ECE 140a final boss : 
+## d. Challege 1 ECE 140a final boss: 
