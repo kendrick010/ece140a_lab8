@@ -6,16 +6,18 @@
 The objective of this lab is
 
 ## a. Tutorial 1 Introduction to CAD: 
-I used Fusion360 to create the camera mount. In this tutorial, we learned how to use CAD to design a camera mount that will be attached to a stepper motor
+We used Fusion360 to create the camera mount. In this tutorial, we learned how to use CAD to design a camera mount that will be attached to a stepper motor
 
 <img src="images/camera_mount.PNG" height="200">
 
 ## b. Tutorial 2 Introduction to GPS:
-In this tutorial, I learned how to extract location data from a GPS module. We used the raw data to create a more user-friendly data by obtaining a google maps link.
+In this tutorial, we learned how to extract location data from a GPS module. We used the raw data to create a more user-friendly representation of it, a google maps link.
 
 ## c. Tutorial 3 Color Segmentation:
+In this tutorial, we learned how to implement color tracking on the pi using color range filtering, denoising, connected component labling, etc. From the provided code, we were able to filter the largest red object captured by the camera module.
 
 ## d. Tutorial 4 Stepper Motors:
+In this  tuturial, we experimented with the stepper motor using the RpiMotor library. From this tutorial, we were able vary the steps, direction, and delay of the motor.
 
 ## e. Tutorial 4 PID Controller:
 
