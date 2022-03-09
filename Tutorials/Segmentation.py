@@ -49,32 +49,33 @@ try:
 		# Matrix showing labels for each pixel in the image
 		b = np.matrix(labels)
    	 
-	if num_labels > 1:
-		# Extracts the label of the largest none background component
-		# and displays distance from center and image.
-		max_label, max_size = max([(i, stats[i, cv2.CC_STAT_AREA]) for i in range(1, num_labels)], key = lambda x: x[1])
-		
-		# Get only pixels with max_label as high (1), rest zero
-		seg = (b == max_label)
+		if num_labels > 1:
+			# Extracts the label of the largest none background component
+			# and displays distance from center and image.
+			max_label, max_size = max([(i, stats[i, cv2.CC_STAT_AREA]) for i in range(1, num_labels)], key = lambda x: x[1])
+			
+			# Get only pixels with max_label as high (1), rest zero
+			seg = (b == max_label)
 
-		# Convert data to binary image
-		seg = np.uint8(seg)
-		seg[seg > 0] = 255
-		
-		# Get distance from center
-		print('distance from center:', -1 * (320 - centroids[max_label][0]))
+			# Convert data to binary image
+			seg = np.uint8(seg)
+			seg[seg > 0] = 255
+			
+			# Get distance from center
+			#print('distance from center:', -1 * (320 - centroids[max_label][0]))
 
-		# Log images for debugging
-		#cv2.imwrite(f"Tutorials/Frames/data_{frames}.png", frame)
-		#cv2.imwrite(f"Tutorials/Frames/seg_{frames}.png", seg)
+			# Log images for debugging
+			cv2.imwrite(f"Tutorials/Frames/data_{frames}.png", frame)
+			cv2.imwrite(f"Tutorials/Frames/seg_{frames}.png", seg)
 
-		cv2.imshow(frame)
-		cv2.imshow(seg)
+			#cv2.imshow("frame", frame)
+			#cv2.imshow("seg", seg)
 
-	else:
-		print("no object in view")
+		else:
+			print("no object in view")
 
 # To stop video execution, track exception and exit
 except KeyboardInterrupt:
+	cv2.destroyAllWindows()
 	print("Press Ctrl-C to terminate while statement")
 	pass
