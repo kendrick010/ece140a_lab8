@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<html>
+
+  <!-- Head element, refer to css and js files -->
+  <head>
+    <meta charset="utf-8">
+    <title> License plate Reader </title>
+    <script type="text/javascript" src="rest.js" defer></script>
+  </head>
+
+  <!-- Body element -->
+  <body>
+    <!-- Heading -->
+    <h1> Object Tracking Application </h1>
+    <h2> By Kendrick Nguyen and Alex Hernandez Perez </h2>
+
+    <!-- Dropdown box -->
+    <div>
+        <label> Choose object to detect: </label>
+        <select id="object">
+          <option value="stop_sign"> Stop Sign </option>
+          <option value="plate"> Plate </option>
+          <option value="wheel"> Wheel </option>
+        </select>
+    </div>
+
+    <!-- Button -->
+    <input type="button" value="Submit" onclick="detectObject()">
+
+    <br><br>
+    <hr>
+
+    <!-- Display Coordinates -->
+    <div>
+      <div id="coordinate"> GPS Coordinate: </div>
+      <div id="city"> City: </div>
+    </div>
+  </body>
+
+</html>
