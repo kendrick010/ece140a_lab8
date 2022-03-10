@@ -23,13 +23,19 @@ def setup():
 def objects():
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS objects(
-        object_name varchar(32)
+        object_name varchar(32),
         Hue INT NOT NULL,
         Saturation INT NOT NULL,
         Brightness INT NOT NULL,
         Contours INT NOT NULL
         );
     """)
+    query = "INSERT INTO objects (object_name, Hue, Saturation, Brightness, Contours) VALUES (%s, %s, %s, %s, %s)"
+    values = [('stop_sign', 0, 0, 0, 0),
+              ('plate', 0, 0, 0, 0),
+              ('wheel', 0, 0, 0, 0)]
+    cursor.executemany(query, values)
+    db.commit()
 
 def found_objects():
     cursor.execute(
@@ -38,6 +44,12 @@ def found_objects():
         address varchar(50) NOT NULL
         );
     """)
+    query = "INSERT INTO found_objects (object_name, address) VALUES (%s, %s)"
+    values = [('stop_sign', 'n/a'),
+              ('plate', 'n/a'),
+              ('wheel', 'n/a')]
+    cursor.executemany(query, values)
+    db.commit()
 
 if __name__ == '__main__':
     setup()
