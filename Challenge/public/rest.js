@@ -9,13 +9,4 @@ function detectObject(){
 
     console.log(theURL)
 
-    fetch(theURL)
-        .then(response=>response.json()) // Convert response to JSON
-
-        .then(function(response) {
-            // Set the value of the img_src attribute of the img tag to the value received from the server
-            console.log(response)
-
-        });
-
 }

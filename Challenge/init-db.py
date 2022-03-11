@@ -27,13 +27,13 @@ def objects():
         Hue INT NOT NULL,
         Saturation INT NOT NULL,
         Brightness INT NOT NULL,
-        Contours INT NOT NULL
+        Sides INT NOT NULL
         );
     """)
-    query = "INSERT INTO objects (object_name, Hue, Saturation, Brightness, Contours) VALUES (%s, %s, %s, %s, %s)"
-    values = [('stop_sign', 0, 0, 0, 0),
-              ('plate', 0, 0, 0, 0),
-              ('wheel', 0, 0, 0, 0)]
+    query = "INSERT INTO objects (object_name, Hue, Saturation, Brightness, Sides) VALUES (%s, %s, %s, %s, %s)"
+    values = [('red_octagon', 0, 0, 0, 0),
+              ('green_square', 0, 0, 0, 0),
+              ('blue_triangle', 0, 0, 0, 0)]
     cursor.executemany(query, values)
     db.commit()
 
@@ -45,9 +45,9 @@ def found_objects():
         );
     """)
     query = "INSERT INTO found_objects (object_name, address) VALUES (%s, %s)"
-    values = [('stop_sign', 'n/a'),
-              ('plate', 'n/a'),
-              ('wheel', 'n/a')]
+    values = [('red_octagon', 'n/a'),
+              ('green_square', 'n/a'),
+              ('blue_triangle', 'n/a')]
     cursor.executemany(query, values)
     db.commit()
 

@@ -26,22 +26,32 @@ try:
 		hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
    		# Red is on the upper and lower of hsv scale. Requires 2 ranges
-		lower1 = np.array([0, 150, 20])
-		upper1 = np.array([10, 255, 255])
-		lower2 = np.array([160,100,20])
-		upper2 = np.array([179,255,255])
-		
+		lower_red1 = np.array([0, 150, 20])
+		upper_red1 = np.array([10, 255, 255])
+		lower_red2 = np.array([160,100,20])
+		upper_red2 = np.array([179,255,255])
 		# Mask input image with upper and lower red ranges
-		red_only1 = cv2.inRange(hsv, lower1, upper1)
-		red_only2 = cv2.inRange(hsv, lower2 , upper2)
-		
+		red_only1 = cv2.inRange(hsv, lower_red1, upper_red1)
+		red_only2 = cv2.inRange(hsv, lower_red2 , upper_red2)
 		red_only = red_only1 + red_only2
+
+   		# Green is on the upper and lower of hsv scale. Requires 2 ranges
+		lower_green = np.array([60, 100, 140])
+		upper_green = np.array([80, 255, 255])
+		# Mask input image with upper and lower green ranges
+		green_only = cv2.inRange(hsv, lower_green , upper_green)
+
+   		# Blue is on the upper and lower of hsv scale. Requires 2 ranges
+		lower_blue = np.array([100, 100, 20])
+		upper_blue = np.array([125, 255, 255])
+		# Mask input image with upper and lower blue ranges
+		blue_only = cv2.inRange(hsv, lower_blue , upper_blue)
 		
 		# Mask for kernel opening
 		mask=np.ones((5,5),np.uint8)
 		
-		# Opening operation on red_only for denoising
-		opening=cv2.morphologyEx(red_only, cv2.MORPH_OPEN, mask)
+		# Opening operation on red, green, or blue for denoising
+		opening=cv2.morphologyEx(green_only, cv2.MORPH_OPEN, mask)
 
 		# Run connected components algo to return all objects it sees.
 		num_labels, labels, stats, centroids =cv2.connectedComponentsWithStats(opening,4, cv2.CV_32S)
@@ -67,6 +77,9 @@ try:
 			# Log images for debugging
 			#cv2.imwrite(f"Tutorials/Frames/data_{frames}.png", frame)
 			#cv2.imwrite(f"Tutorials/Frames/seg_{frames}.png", seg)
+
+			cv2.imshow("frame", frame)
+			cv2.imshow("seg", seg)
 
 		else:
 			print("no object in view")

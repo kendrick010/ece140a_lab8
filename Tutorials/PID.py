@@ -98,9 +98,7 @@ while(1):
     else:
         print('no object in view')
         
-
-    k=cv2.waitKey(5)
-    if k==27:
+    if cv2.waitKey(1)==27:
         break
 
 cv2.destroyAllWindows()
