@@ -36,8 +36,8 @@ try:
 		red_only = red_only1 + red_only2
 
    		# Green is on the upper and lower of hsv scale. Requires 2 ranges
-		lower_green = np.array([60, 100, 140])
-		upper_green = np.array([80, 255, 255])
+		lower_green = np.array([40, 100, 20])
+		upper_green = np.array([75, 255, 255])
 		# Mask input image with upper and lower green ranges
 		green_only = cv2.inRange(hsv, lower_green , upper_green)
 
@@ -58,8 +58,26 @@ try:
 
 		# Matrix showing labels for each pixel in the image
 		b = np.matrix(labels)
+
+		cv2.imshow("frame", frame)
+
+		# Gets largest contours and finds a square
+		contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+		square = None
+
+		try:
+			contour = max(contours, key=cv2.contourArea)
+			peri = cv2.arcLength(contour, True)
+			approx = cv2.approxPolyDP(contour, 0.04*peri, True)
+			square = True if len(approx) == 4 else False
+		except:
+			square = False
+
    	 
-		if num_labels > 1:
+		if num_labels > 1 and square:
+
+			print("Green square found")
+
 			# Extracts the label of the largest none background component
 			# and displays distance from center and image.
 			max_label, max_size = max([(i, stats[i, cv2.CC_STAT_AREA]) for i in range(1, num_labels)], key = lambda x: x[1])
@@ -72,17 +90,16 @@ try:
 			seg[seg > 0] = 255
 			
 			# Get distance from center
-			print('distance from center:', -1 * (320 - centroids[max_label][0]))
+			#print('distance from center:', -1 * (320 - centroids[max_label][0]))
 
 			# Log images for debugging
 			#cv2.imwrite(f"Tutorials/Frames/data_{frames}.png", frame)
 			#cv2.imwrite(f"Tutorials/Frames/seg_{frames}.png", seg)
 
-			cv2.imshow("frame", frame)
 			cv2.imshow("seg", seg)
 
 		else:
-			print("no object in view")
+			print("None")
 
 		if cv2.waitKey(1)==27:
 			break
