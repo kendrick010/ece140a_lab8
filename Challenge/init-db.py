@@ -24,16 +24,20 @@ def objects():
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS objects(
         object_name varchar(32),
-        Hue INT NOT NULL,
-        Saturation INT NOT NULL,
-        Brightness INT NOT NULL,
-        Sides INT NOT NULL
+        hue_lower INT NOT NULL,
+        hue_upper INT NOT NULL,
+        saturation_lower INT NOT NULL,
+        saturation_upper INT NOT NULL,
+        brightness_lower INT NOT NULL,
+        brightness_upper INT NOT NULL,
+        sides INT NOT NULL
         );
     """)
-    query = "INSERT INTO objects (object_name, Hue, Saturation, Brightness, Sides) VALUES (%s, %s, %s, %s, %s)"
-    values = [('red_octagon', 0, 0, 0, 0),
-              ('green_square', 0, 0, 0, 0),
-              ('blue_triangle', 0, 0, 0, 0)]
+    query = "INSERT INTO objects (object_name, hue_lower, hue_upper, saturation_lower, saturation_upper, brightness_lower, brightness_upper, sides) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+    values = [('red_octagon', 0, 10, 150, 255, 20, 255, 8),
+              ('red_octagon', 160, 179, 100, 255, 20, 255, 8),
+              ('green_square', 40, 75, 100, 255, 20, 255, 4),
+              ('blue_triangle', 100, 125, 100, 125, 20, 255, 3)]
     cursor.executemany(query, values)
     db.commit()
 
@@ -44,12 +48,6 @@ def found_objects():
         address varchar(50) NOT NULL
         );
     """)
-    query = "INSERT INTO found_objects (object_name, address) VALUES (%s, %s)"
-    values = [('red_octagon', 'n/a'),
-              ('green_square', 'n/a'),
-              ('blue_triangle', 'n/a')]
-    cursor.executemany(query, values)
-    db.commit()
 
 if __name__ == '__main__':
     setup()
