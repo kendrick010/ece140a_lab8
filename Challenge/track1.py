@@ -3,11 +3,11 @@ from random import sample
 from cv2 import threshold
 import numpy as np
 import cv2
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 import time
 
 # Import the motor library
-from RpiMotorLib import RpiMotorLib
+#from RpiMotorLib import RpiMotorLib
 
 # Import all MySQL libraries
 import mysql.connector as mysql
@@ -30,7 +30,7 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 GpioPins = [18, 23, 24, 25]
 
 # Declare a named instance of class pass a name and motor type
-mymotortest = RpiMotorLib.BYJMotor("MyMotorOne", "28BYJ")
+#mymotortest = RpiMotorLib.BYJMotor("MyMotorOne", "28BYJ")
 # Min time between motor steps (ie max speed)
 step_time = .002
 
@@ -82,11 +82,28 @@ def hsv_parameters(object_name, frame):
 
     return hsv_ranges
 
+# Aproximate polygon
+def get_shape(object_name, opening):
+    # Gets largest contours and finds the appropriate polygon
+    contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    shape = side_parameter(object_name)
+    shape_detect = None
+    try:
+        contour = max(contours, key=cv2.contourArea)
+        peri = cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, 0.04*peri, True)
+        shape_detect = True if len(approx) == shape else False
+    except:
+        shape_detect = False
+
+    return shape_detect
+
+# Centers given object in frame until 90% confidence
 def object_in_frame(object_name):
     # Keep track of frames for debugging and image testing
     frames = 0
 
-    # Start live feed. Break until ~90% of collected errors are within 20
+    # Start live feed
     while(frames >= 0):
         # Read with the USB camera
         _, frame = cap.read()
@@ -99,21 +116,23 @@ def object_in_frame(object_name):
         num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(opening, 4, cv2.CV_32S)
         b = np.matrix(labels)
 
+        shape_detect = get_shape(object_name, opening)
+
         cv2.imshow("frame", frame)
 
-        if num_labels > 1:
+        if num_labels > 1 and shape_detect:
+            # Extracts the label of the largest none background component and displays distance from center and image.
+            max_label, max_size = max([(i, stats[i, cv2.CC_STAT_AREA]) for i in range(1, num_labels)], key=lambda x: x[1])
 
-            max_label, max_size = max([(i, stats[i, cv2.CC_STAT_AREA]) for i in range(1, num_labels)], key = lambda x: x[1])
-            
-            # Get only pixels with max_label as high (1), rest zero
+            # Get only pixels with max_label as high (1), rest zero. Convert data to binary image
             seg = (b == max_label)
-
-            # Convert data to binary image
             seg = np.uint8(seg)
             seg[seg > 0] = 255
 
             cv2.imshow("seg", seg)
 
+        if cv2.waitKey(1) == 27:
+            break
 
 if __name__ == '__main__':
-    object_in_frame("red_octagon")
+    object_in_frame("green_square")
