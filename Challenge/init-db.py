@@ -37,7 +37,7 @@ def objects():
     values = [('red_octagon', 0, 10, 150, 255, 20, 255, 8),
               ('red_octagon', 160, 179, 100, 255, 20, 255, 8),
               ('green_square', 40, 75, 100, 255, 20, 255, 4),
-              ('blue_triangle', 100, 125, 100, 125, 20, 255, 3)]
+              ('blue_triangle', 100, 125, 100, 255, 20, 255, 3)]
     cursor.executemany(query, values)
     db.commit()
 
