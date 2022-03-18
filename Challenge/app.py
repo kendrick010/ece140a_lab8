@@ -9,6 +9,7 @@ import mysql.connector as mysql
 from dotenv import load_dotenv
 import os
 
+# Import helper modules for image tracking
 import init_db 
 import track
 import coordinates
@@ -21,6 +22,7 @@ db_user = os.environ['MYSQL_USER']
 db_pass = os.environ['MYSQL_PASSWORD']
 db_name = os.environ['MYSQL_DATABASE']
 
+# Extracted text
 text = ''
 
 # Home route
@@ -28,30 +30,29 @@ def index_page(req):
     path = 'index.html'
     return FileResponse(path)
 
-# Finds objects by panning to the center, once found get coordinates and send JSON
+# Finds objects by panning until the centered, once found get coordinates and send JSON
 def get_object(req):
     global text
-
     object_name = str(req.matchdict['object_name'])
 
     # Track object (hardware code)
     track.object_in_frame(object_name)
 
-    # Get coordinates
+    # Get location data
     latitude, longitude = coordinates.locate()
+    coordinate = str(latitude) + '°, ' + str(longitude) + '°'
     city = coordinates.get_city(latitude, longitude)
 
     # Extract text
     text = extract.get_text()
 
-    coordinate = str(latitude) + '°, ' + str(longitude) + '°'
-
     return {'coordinate': coordinate, 'city': city}
 
-# Store object and its address in found_objects table
+# Store object, address, and extracted text in found_objects table
 def record_address(req):
     global text
 
+    # Object name and coordinate from route
     object_name = str(req.matchdict['object_name'])
     coordinate = str(req.matchdict['coordinate'])
 

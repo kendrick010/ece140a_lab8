@@ -1,7 +1,4 @@
 # Import all necessary libraries
-from random import sample
-from re import L
-from cv2 import threshold
 import numpy as np
 import cv2
 import RPi.GPIO as GPIO
@@ -45,6 +42,7 @@ d_error, sum_error = 0, 0
 sample_size = 30
 last_error, confidence = 0, 0
 
+# Initializes all PID and confidence values before tracking
 def init():
     global Kp, Kd, Ki, d_error, sum_error, last_error, confidence
 
@@ -56,6 +54,7 @@ def init():
     last_error = [20] * sample_size
     confidence = 0
 
+# Pans left/right until an object is found
 def pan(pan_direction):
     mymotortest.motor_run(GpioPins , step_time, 2, pan_direction, False, "full", .05)
 
@@ -100,6 +99,8 @@ def get_shape(object_name, opening):
     contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     shape = side_parameter(object_name)
     shape_detect = None
+
+    # Finds if selected shape is found according to the object
     try:
         contour = max(contours, key=cv2.contourArea)
         peri = cv2.arcLength(contour, True)
@@ -118,6 +119,7 @@ def object_in_frame(object_name):
     global last_error
     global confidence
 
+    # Initializes all PID and confidence values before tracking
     init()
 
     frames = 0
@@ -137,14 +139,17 @@ def object_in_frame(object_name):
         num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(opening, 4, cv2.CV_32S)
         b = np.matrix(labels)
 
+        # Gets shape of largest detected object within frame
         shape_detect = get_shape(object_name, opening)
 
         cv2.imshow("frame", frame)
         cv2.imwrite('public/images/frame.png', frame)
 
+        # PID tracking for largest object within frame
         if num_labels > 1 and shape_detect:
             start = time.time()
-            #extracts the label of the largest none background component and displays distance from center and image.
+
+            # Extracts the label of the largest none background component and displays distance from center and image.
             max_label, max_size = max([(i, stats[i, cv2.CC_STAT_AREA]) for i in range(1, num_labels)], key = lambda x: x[1])
             Obj = b == max_label
             Obj = np.uint8(Obj)
@@ -153,36 +158,38 @@ def object_in_frame(object_name):
             cv2.imshow('largest object', Obj)
             cv2.imwrite('public/images/frame_grey.png', Obj)
             
-            #calculate error from center column of masked image
+            # Calculate error from center column of masked image. Speed gain calculated from PID gain values
             error = -1 * (320 - centroids[max_label][0])
-            #speed gain calculated from PID gain values
             speed = Kp * error + Ki * sum_error + Kd * d_error
             
-            #if negative speed change direction
+            # If negative speed change direction
             direction = False if speed < 0 else True
             
-            #inverse speed set for multiplying step time (lower step time = faster speed)
+            # Inverse speed set for multiplying step time (lower step time = faster speed)
             speed_inv = abs(1/(speed))
             
-            #get delta time between loops
+            # Get delta time between loops
             delta_t = time.time() - start
-            #calculate derivative error
+
+            # Calculate derivative error
             d_error = (error - last_error[sample_size - 1])/delta_t
-            #integrated error
+
+            # Integrated error
             sum_error += (error * delta_t)
             last_error.append(error)
             last_error.pop(0)
             
-            #buffer of 20 only runs within 20
+            # Buffer of 20 only runs within 20
             if abs(error) > 20:
                 mymotortest.motor_run(GpioPins , speed_inv * step_time, 1, direction, False, "full", .05)
             else:
-                #run 0 steps if within an error of 20
+                # Run 0 steps if within an error of 20
                 mymotortest.motor_run(GpioPins , step_time, 0, direction, False, "full", .05)
             
             # Sample as much errors until ~90% of collected errors are within 20
             confidence = len([i for i in last_error if abs(i) < 20]) / sample_size
         else:
+            # Enter if no object within frame, thus pan side to side
             pan_counter += 1
             pan_direction = not(pan_direction) if (pan_counter % 125) == 1 else pan_direction
             pan(pan_direction)

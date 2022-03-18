@@ -19,6 +19,7 @@ function detectObject(){
         .then(function (response) {
             console.log(response)
 
+            // Changes inner HTML to detected object GPS location
             coordinate.innerHTML = "GPS Coordinate: " + response['coordinate']
             city.innerHTML = "City: " + response['city']
         });

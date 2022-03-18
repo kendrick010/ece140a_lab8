@@ -14,12 +14,14 @@ db_pass = os.environ['MYSQL_PASSWORD']
 db = mysql.connect(host=db_host, user=db_user, password=db_pass)
 cursor = db.cursor()
 
+# Creates lab8 data if it does not exists. Deletes all current tables within lab8 database
 def setup():
     cursor.execute("CREATE DATABASE IF NOT EXISTS lab8;")
     cursor.execute("USE lab8")
     cursor.execute("DROP TABLE IF EXISTS objects")
     cursor.execute("DROP TABLE IF EXISTS found_objects")
 
+# Pre-fills all HSV values and polygon sides for detected objects: Red Octagon, Green Square, and Blue triangle
 def objects():
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS objects(
@@ -41,6 +43,7 @@ def objects():
     cursor.executemany(query, values)
     db.commit()
 
+# Creates found_objects table, stores object name, location, and extracted text
 def found_objects():
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS found_objects(
@@ -50,6 +53,7 @@ def found_objects():
         );
     """)
 
+# Call this to initiate database for object tracking application
 def main():
     setup()
     objects()
