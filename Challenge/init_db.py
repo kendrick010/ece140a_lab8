@@ -36,7 +36,7 @@ def objects():
     query = "INSERT INTO objects (object_name, hue_lower, hue_upper, saturation_lower, saturation_upper, brightness_lower, brightness_upper, sides) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
     values = [('red_hexagon', 0, 10, 150, 255, 20, 255, 5),
               ('red_hexagon', 160, 179, 100, 255, 20, 255, 5),
-              ('green_square', 40, 75, 100, 255, 20, 255, 4),
+              ('green_square', 35, 80, 20, 255, 0, 255, 4),
               ('blue_triangle', 100, 125, 100, 255, 20, 255, 3)]
     cursor.executemany(query, values)
     db.commit()

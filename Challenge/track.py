@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 import os
 
 # Loads all details from the "credentials.env"
-load_dotenv('Challenge/credentials.env')
+load_dotenv('credentials.env')
 db_host = os.environ['MYSQL_HOST']
 db_user = os.environ['MYSQL_USER']
 db_pass = os.environ['MYSQL_PASSWORD']
