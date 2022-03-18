@@ -26,7 +26,7 @@ In this tutorial, we learned about PID Control in the application of stepper mot
 The objective of this challenge is to create an object tracking application using the camera module, GPS module, and stepper motor. To succesfully implement it, we incorporated PID control, user interface, and server/database backend.
 
 > Additional information:
-- cd Challenge
+- `cd Challenge`
 - Only tracks a red pentagon, green square, and blue triangle.
 - If there is no object in frame, the camera/motor will rotate 180 degrees left then 180 degrees right repeatedly, as an idle, until an object is found.
 - Once camera reads that the object is within the center of the frame with 90%-100% confidence, tracking will end and the GPS coordinate will display on the rest server.
