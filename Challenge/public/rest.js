@@ -1,34 +1,38 @@
 // Get response for object selection
 function detectObject(){
     // Get the current index value from the text input box
-    let object_name = document.getElementById('object').value;
+    const object_name = document.getElementById('object').value;
 
     // This URL path is going to be the route defined in app.py
-    let theURL = '/' + object_name;
+    const theURL = '/object/' + object_name;
     console.log("Making a RESTful request to the server!")
 
     // Fetch is a Javascript function that sends a request to a server
-    console.log(theURL)
     fetch(theURL)
         .then(response => response.json()) // Convert response to JSON
 
         .then(function (response) {
             console.log(response)
-        });
 
+            const coordinate = document.getElementById('coordinate') 
+            const city = document.getElementById('city')
+
+            coordinate.innerHTML = "GPS Coordinate: " + response['coordinate']
+            city.innerHTML = "City: " + response['city']
+        });
 }
 
 // Send request for storing address
 function recordAddress() {
     // Get the current index value from the text input box
-    let id = document.getElementById('object').value;
+    const object_name = document.getElementById('object').value;
+
+    let coordinate = document.getElementById('coordinate').innerHTML;
+    coordinate = coordinate.replace('GPS Coordinate: ', '')
 
     // This URL path is going to be the route defined in app.py
-    let theURL = '/record/' + id;
+    const theURL = '/record/' + object_name + '/' + coordinate;
     console.log("Making a RESTful request to the server!")
 
-    // Fetch is a Javascript function that sends a request to a server
-    console.log(theURL)
-    fetch(theURL)
-
+    fetch(theURL);
 }

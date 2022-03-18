@@ -15,7 +15,7 @@ def GPS_Info():
    nmea_latitude = NMEA_buff[1]                #extract latitude from GPGGA string
    nmea_latitude_dir = NMEA_buff[2]            #extract the direction of latitude(N/S)
    nmea_longitude = NMEA_buff[3]               #extract longitude from GPGGA string
-   nmea_longitude_dir = NMEA_buff[2]           #extract the direction of longitude(E/W)
+   nmea_longitude_dir = NMEA_buff[4]           #extract the direction of longitude(E/W)
 
    print("NMEA Time: ", nmea_time,'\n')
    print ("NMEA Latitude:", nmea_latitude,"NMEA Longitude:", nmea_longitude,'\n')
@@ -25,9 +25,9 @@ def GPS_Info():
 
 
    #get latitude in degree decimal format with direction
-   lat_in_degrees = convert_to_degrees(lat) if nmea_latitude_dir == 'N' else (-1 * convert_to_degrees(lat))  
+   lat_in_degrees = convert_to_degrees(lat) if nmea_latitude_dir == 'N' else (convert_to_degrees(-1 * lat))  
    #get longitude in degree decimal format with direction
-   long_in_degrees = convert_to_degrees(longi) if nmea_latitude_dir == 'N' else (-1 * convert_to_degrees(lat))
+   long_in_degrees = convert_to_degrees(longi) if nmea_longitude_dir == 'E' else (convert_to_degrees(-1 * longi))
 
 #convert raw NMEA string into degree decimal format
 def convert_to_degrees(raw_value):
@@ -37,8 +37,6 @@ def convert_to_degrees(raw_value):
    position = degrees + mm_mmmm
    position = "%.4f" %(position)
    return position
-
-
 
 gpgga_info = "$GPGGA,"
 ser = serial.Serial ("/dev/serial0")              #Open port with baud rate
