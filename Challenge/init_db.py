@@ -49,7 +49,7 @@ def found_objects():
         );
     """)
 
-if __name__ == '__main__':
+def main():
     setup()
     objects()
     found_objects()

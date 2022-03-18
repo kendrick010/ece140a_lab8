@@ -9,7 +9,8 @@ import mysql.connector as mysql
 from dotenv import load_dotenv
 import os
 
-#import track
+import init_db 
+import track
 import coordinates
 
 # Loads all details from the "credentials.env"
@@ -29,7 +30,7 @@ def get_object(req):
     object_name = str(req.matchdict['object_name'])
 
     # Track object (hardware code)
-    #track.object_in_frame(object_name)
+    track.object_in_frame(object_name)
 
     # Get coordinates
     latitude, longitude = coordinates.locate()
@@ -37,7 +38,7 @@ def get_object(req):
 
     coordinate = str(latitude) + '°, ' + str(longitude) + '°'
 
-    return {'coordinate': coordinate, 'city': 'empty_city'}
+    return {'coordinate': coordinate, 'city': 'empty'}
 
 # Store object and its address in found_objects table
 def record_address(req):
@@ -66,6 +67,8 @@ def record_address(req):
     return {'response': ''}
 
 if __name__ == '__main__':
+
+    init_db.main()
 
     with Configurator() as config:
 

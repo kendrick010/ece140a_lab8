@@ -1,5 +1,6 @@
 # Import all necessary libraries
 from random import sample
+from re import L
 from cv2 import threshold
 import numpy as np
 import cv2
@@ -45,7 +46,8 @@ sum_error = 0
 
 # Stores past n-many errors, this is to measure confidence from the center to later break the loop
 sample_size = 30
-last_error = [0] * sample_size
+last_error = [20] * sample_size
+confidence = 0
 
 # Get polygon or number of sides in object
 def side_parameter(object_name):
@@ -58,14 +60,14 @@ def side_parameter(object_name):
     result = cursor.fetchone()
     db.close()
 
-    return result
+    return result[0]
 
 # Get hsv ranges
 def hsv_parameters(object_name, frame):
 
     # Convert to hsv deals better with lighting
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    hsv_ranges = None
+    hsv_ranges = 0
 
     # Connect to database
     db = mysql.connect(host=db_host, user=db_user, passwd=db_pass, database=db_name)
@@ -98,44 +100,23 @@ def get_shape(object_name, opening):
 
     return shape_detect
 
-# PID calculations
-def pid_calculate(num_labels, stats, centroids, start, b):
-    # Extracts the label of the largest none background component and displays distance from center and image.
-    max_label, max_size = max([(i, stats[i, cv2.CC_STAT_AREA]) for i in range(1, num_labels)], key=lambda x: x[1])
-    Obj = b == max_label
-    Obj = np.uint8(Obj)
-    Obj[Obj > 0] = 255
-    cv2.imshow('largest object', Obj)
+def pan(pan_direction):
+    mymotortest.motor_run(GpioPins , 0.002, 5, pan_direction, False, "full", .05)
 
-    # Calculate error from center column of masked image. Speed gain calculated from PID gain values
-    error = -1 * (320 - centroids[max_label][0])
-    speed = Kp * error + Ki * sum_error + Kd * d_error
-
-    # If negative speed change direction
-    if speed < 0:
-        direction = False
-    else:
-        direction = True
-
-    # Inverse speed set for multiplying step time (lower step time = faster speed)
-    speed_inv = abs(1/(speed))
-
-    # Get delta time between loops. Calculate derivative error. Integrated error
-    delta_t = time.time() - start
-    d_error = (error - last_error[29])/delta_t
-    sum_error += (error * delta_t)
-
-    return error, direction, speed_inv
-
+# Centers given object in frame until 90% confidence
 def object_in_frame(object_name):
     # Keep track of frames for debugging and image testing
+    global d_error
+    global sum_error 
+    global last_error
+    global confidence
+
     frames = 0
+    pan_counter = 0
+    pan_direction = True
 
-    confidence = None
-    threshold = 0.9
-
-    # Start live feed. Break until ~90% of collected errors are within 20
-    while(frames >= 0 and confidence > threshold):
+    # Start live feed
+    while(frames >= 0 and confidence < 0.90):
         # Read with the USB camera
         _, frame = cap.read()
         frames += 1
@@ -150,25 +131,59 @@ def object_in_frame(object_name):
         shape_detect = get_shape(object_name, opening)
 
         cv2.imshow("frame", frame)
+        cv2.imshow('Masked image', opening)
 
         if num_labels > 1 and shape_detect:
+            print("Object in view")
             start = time.time()
-
-            error, direction, speed_inv = pid_calculate(num_labels, stats, centroids, start, b)
-
-            # Store past errors
-            if len(last_error) == sample_size:
-                last_error.pop(0)
-            last_error[29] = error
-
-            if abs(last_error[29]) > 20:
-                mymotortest.motor_run(GpioPins, speed_inv * step_time, 1, direction, False, "full", .05)
+            #extracts the label of the largest none background component and displays distance from center and image.
+            max_label, max_size = max([(i, stats[i, cv2.CC_STAT_AREA]) for i in range(1, num_labels)], key = lambda x: x[1])
+            Obj = b == max_label
+            Obj = np.uint8(Obj)
+            Obj[Obj > 0] = 255
+            cv2.imshow('largest object', Obj)
+            
+            #calculate error from center column of masked image
+            error = -1 * (320 - centroids[max_label][0])
+            #speed gain calculated from PID gain values
+            speed = Kp * error + Ki * sum_error + Kd * d_error
+            
+            #if negative speed change direction
+            direction = False if speed < 0 else True
+            
+            #inverse speed set for multiplying step time (lower step time = faster speed)
+            speed_inv = abs(1/(speed))
+            
+            #get delta time between loops
+            delta_t = time.time() - start
+            #calculate derivative error
+            d_error = (error - last_error[sample_size - 1])/delta_t
+            #integrated error
+            sum_error += (error * delta_t)
+            last_error.append(error)
+            last_error.pop(0)
+            
+            #buffer of 20 only runs within 20
+            if abs(error) > 20:
+                mymotortest.motor_run(GpioPins , speed_inv * step_time, 1, direction, False, "full", .05)
             else:
-                # Run 0 steps if within an error of 20
-                mymotortest.motor_run(GpioPins, step_time, 0, direction, False, "full", .05)
-        
-        # Sample as much errors until ~90% of collected errors are within 20
-        confidence = len([i for i in last_error if abs(i) < 20]) / sample_size
+                #run 0 steps if within an error of 20
+                mymotortest.motor_run(GpioPins , step_time, 0, direction, False, "full", .05)
+            
+            # Sample as much errors until ~90% of collected errors are within 20
+            confidence = len([i for i in last_error if abs(i) < 20]) / sample_size
+        else:
+            pan_counter += 1
+            pan_direction = not(pan_direction) if (pan_counter % 50) == 1 else pan_direction
+            print('No object in view')
+            pan(pan_direction)
+                
+        if cv2.waitKey(1) == 27:
+            break
+    
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    object_in_frame("red_octagon")
+    object_in_frame("blue_triangle")
+    #pan(True)
+    print("End")
