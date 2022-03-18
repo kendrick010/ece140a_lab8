@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 
 # Loads all details from the "credentials.env"
-load_dotenv('Challenge/credentials.env')
+load_dotenv('credentials.env')
 # Environment Variables
 db_host = os.environ['MYSQL_HOST']
 db_user = os.environ['MYSQL_USER']
@@ -34,8 +34,8 @@ def objects():
         );
     """)
     query = "INSERT INTO objects (object_name, hue_lower, hue_upper, saturation_lower, saturation_upper, brightness_lower, brightness_upper, sides) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-    values = [('red_octagon', 0, 10, 150, 255, 20, 255, 8),
-              ('red_octagon', 160, 179, 100, 255, 20, 255, 8),
+    values = [('red_hexagon', 0, 10, 150, 255, 20, 255, 5),
+              ('red_hexagon', 160, 179, 100, 255, 20, 255, 5),
               ('green_square', 40, 75, 100, 255, 20, 255, 4),
               ('blue_triangle', 100, 125, 100, 255, 20, 255, 3)]
     cursor.executemany(query, values)
@@ -45,7 +45,8 @@ def found_objects():
     cursor.execute(
         """CREATE TABLE IF NOT EXISTS found_objects(
         object_name varchar(32) NOT NULL,
-        address varchar(50) NOT NULL
+        address varchar(50) NOT NULL,
+        text varchar(32)
         );
     """)
 

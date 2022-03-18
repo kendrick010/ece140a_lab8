@@ -35,19 +35,29 @@ mymotortest = RpiMotorLib.BYJMotor("MyMotorOne", "28BYJ")
 # Min time between motor steps (ie max speed)
 step_time = .002
 
-#PID Gain Values (these are just starter values)
-Kp = 0.003
-Kd = 0.0001
-Ki = 0.0001
+#PID Gain Values
+Kp, Kd, Ki = 0, 0, 0
 
 # Error values
-d_error = 0
-sum_error = 0
+d_error, sum_error = 0, 0
 
 # Stores past n-many errors, this is to measure confidence from the center to later break the loop
 sample_size = 30
-last_error = [20] * sample_size
-confidence = 0
+last_error, confidence = 0, 0
+
+def init():
+    global Kp, Kd, Ki, d_error, sum_error, last_error, confidence
+
+    Kp = 0.003
+    Kd = 0.0001
+    Ki = 0.0001
+    d_error = 0
+    sum_error = 0
+    last_error = [20] * sample_size
+    confidence = 0
+
+def pan(pan_direction):
+    mymotortest.motor_run(GpioPins , step_time, 2, pan_direction, False, "full", .05)
 
 # Get polygon or number of sides in object
 def side_parameter(object_name):
@@ -100,9 +110,6 @@ def get_shape(object_name, opening):
 
     return shape_detect
 
-def pan(pan_direction):
-    mymotortest.motor_run(GpioPins , 0.002, 5, pan_direction, False, "full", .05)
-
 # Centers given object in frame until 90% confidence
 def object_in_frame(object_name):
     # Keep track of frames for debugging and image testing
@@ -110,6 +117,8 @@ def object_in_frame(object_name):
     global sum_error 
     global last_error
     global confidence
+
+    init()
 
     frames = 0
     pan_counter = 0
@@ -131,17 +140,18 @@ def object_in_frame(object_name):
         shape_detect = get_shape(object_name, opening)
 
         cv2.imshow("frame", frame)
-        cv2.imshow('Masked image', opening)
+        cv2.imwrite('public/images/frame.png', frame)
 
         if num_labels > 1 and shape_detect:
-            print("Object in view")
             start = time.time()
             #extracts the label of the largest none background component and displays distance from center and image.
             max_label, max_size = max([(i, stats[i, cv2.CC_STAT_AREA]) for i in range(1, num_labels)], key = lambda x: x[1])
             Obj = b == max_label
             Obj = np.uint8(Obj)
             Obj[Obj > 0] = 255
+
             cv2.imshow('largest object', Obj)
+            cv2.imwrite('public/images/frame_grey.png', Obj)
             
             #calculate error from center column of masked image
             error = -1 * (320 - centroids[max_label][0])
@@ -174,14 +184,11 @@ def object_in_frame(object_name):
             confidence = len([i for i in last_error if abs(i) < 20]) / sample_size
         else:
             pan_counter += 1
-            pan_direction = not(pan_direction) if (pan_counter % 50) == 1 else pan_direction
-            print('No object in view')
+            pan_direction = not(pan_direction) if (pan_counter % 125) == 1 else pan_direction
             pan(pan_direction)
                 
         if cv2.waitKey(1) == 27:
             break
-    
-    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     object_in_frame("blue_triangle")

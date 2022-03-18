@@ -12,21 +12,26 @@ import os
 import init_db 
 import track
 import coordinates
+import extract
 
 # Loads all details from the "credentials.env"
-load_dotenv('Challenge/credentials.env')
+load_dotenv('credentials.env')
 db_host = os.environ['MYSQL_HOST']
 db_user = os.environ['MYSQL_USER']
 db_pass = os.environ['MYSQL_PASSWORD']
 db_name = os.environ['MYSQL_DATABASE']
 
+text = ''
+
 # Home route
 def index_page(req):
-    path = 'Challenge/index.html'
+    path = 'index.html'
     return FileResponse(path)
 
 # Finds objects by panning to the center, once found get coordinates and send JSON
 def get_object(req):
+    global text
+
     object_name = str(req.matchdict['object_name'])
 
     # Track object (hardware code)
@@ -34,14 +39,19 @@ def get_object(req):
 
     # Get coordinates
     latitude, longitude = coordinates.locate()
-    #city = coordinates.city()
+    city = coordinates.get_city(latitude, longitude)
+
+    # Extract text
+    text = extract.get_text()
 
     coordinate = str(latitude) + '°, ' + str(longitude) + '°'
 
-    return {'coordinate': coordinate, 'city': 'empty'}
+    return {'coordinate': coordinate, 'city': city}
 
 # Store object and its address in found_objects table
 def record_address(req):
+    global text
+
     object_name = str(req.matchdict['object_name'])
     coordinate = str(req.matchdict['coordinate'])
 
@@ -58,8 +68,8 @@ def record_address(req):
     object_name = object_name + "_" + str(object_id)
 
     # Store address into database
-    query = "INSERT INTO found_objects (object_name, address) VALUES (%s, %s)"
-    values = [(object_name, coordinate)]
+    query = "INSERT INTO found_objects (object_name, address, text) VALUES (%s, %s, %s)"
+    values = [(object_name, coordinate, text)]
     cursor.executemany(query, values)
     db.commit()
     db.close()

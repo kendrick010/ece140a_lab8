@@ -1,7 +1,6 @@
 import serial               #import serial package
 from time import sleep
-import webbrowser           #import package for opening link in browser
-import sys                  #import system package
+import reverse_geocode
 
 gpgga_info = "$GPGGA,"
 ser = serial.Serial ("/dev/serial0")              #Open port with baud rate
@@ -41,6 +40,10 @@ def convert_to_degrees(raw_value):
     position = "%.4f" %(position)
     return position
 
+def get_city(lat, long):
+    coordinates = (lat, long)
+    return reverse_geocode.get(coordinates)['city']
+
 def locate():
     global NMEA_buff
     while True:
@@ -52,3 +55,6 @@ def locate():
             GPS_Info()                                          #get time, latitude, longitude
 
             return lat_in_degrees, long_in_degrees
+
+if __name__ == '__main__':
+    get_city(32.9345, -117.1327)
