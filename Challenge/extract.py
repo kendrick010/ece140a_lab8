@@ -30,25 +30,23 @@ def get_processing(img):
 
     # Get largest contour
     contours = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours = contours[0] if len(contours) == 2 else contours[1]
+    contours = contours[0] if len(contours) == 2 else contours[1]    
     big_contour = max(contours, key=cv2.contourArea)
 
     # Bound/crop largest contour
     x, y, w, h = cv2.boundingRect(big_contour)
 
-    # Output roi
-    roi = img[y:y+h, x:x+w]
-    return roi
+    return img[y:y+h, x:x+w]
 
 # Returns extracted text
 def get_text():
     # Gets processed image
     img = transform()
-    img = get_processing(img)
-
+    result = get_processing(img)
+    
     # Extract text
     try:
-        text = pytesseract.image_to_string(img)
+        text = pytesseract.image_to_string(result)
         text = text.strip()
     except:
         text = ''
