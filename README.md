@@ -23,11 +23,14 @@ In this  tuturial, we experimented with the stepper motor using the RpiMotor lib
 In this tutorial, we learned about PID Control in the application of stepper motor tracking. The purpose of PID Control is to eliminate overshoot and steady-state error to obtain the desired output of tracking objects to the center smoothly.
 
 ## f. Challege 1 ECE 140a final boss: 
+> Demo vide: [YouTube](https://www.youtube.com/watch?v=arVYdSZ3B3U). 
+<br>We used a webcam since the provided camera module gave up on us last minute, sorry.
+
 The objective of this challenge is to create an object tracking application using the camera module, GPS module, and stepper motor. To succesfully implement it, we incorporated PID control, user interface, and server/database backend.
 
-> Additional information:
+Additional information:
 - `cd Challenge`
 - Only tracks a red pentagon, green square, and blue triangle.
 - If there is no object in frame, the camera/motor will rotate 180 degrees left then 180 degrees right repeatedly, as an idle, until an object is found.
-- Once camera reads that the object is within the center of the frame with 90%-100% confidence, tracking will end and the GPS coordinate will display on the rest server.
+- Once the camera reads that the object is within the center of the frame with 90%-100% confidence, tracking will end and the GPS coordinate will display on the rest server.
 - To record the GPS location/address in the database, press the record button.
